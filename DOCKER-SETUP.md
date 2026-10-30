@@ -1,120 +1,181 @@
-# GPP + Démarches Simplifiées test environment setup Procedure
+# GPP + Démarches Simplifiées test environment
 
-Setup from scratch, assuming Docker is installed and both repositories
-are cloned as:
+This environment runs GPP next to a local Démarches Simplifiées (DS) instance that stands in for the public platform, demarche.numerique.gouv.fr. GPP reads the dossiers submitted on DS through DS's GraphQL API, as it does in production, so the link between a GPP démarche and a public démarche, and the synchronisation of dossiers, can be tested without an account on the public platform.
 
-- `cad-gpp/` - GPP (Gestionnaire des Processus Projets)
-- `demarches-simplifiees/` - DS (upstream Démarches Simplifiées)
+It is a test setup only: plain HTTP, locally generated secrets, no email.
 
+## What you need
 
-## Step 1: Configure GPP
+- Docker Engine with the Compose v2 plugin (`docker compose`).
+- Ports 3002 (GPP) and 3003 (DS) free on the host.
+- About 4 GB of disk for the two images.
+- Internet access during the build, for the base images, the gems and the JavaScript packages.
 
-Note: we assume the workdir is the directory containing the two project directories.
-Copy the example env file and fill in the required values:
+The first build of the two images takes ten to twenty minutes. On first boot, each instance then needs about a minute to load its schema and seed its test account.
 
-```bash
-cp cad-gpp/config/env.example cad-gpp/.env
+## Layout
+
+The two repositories are cloned side by side. Every command below runs from the directory that contains them.
+
+```
+workdir/
+├── por_gpp/                  GPP (this repository)
+│   ├── Dockerfile, docker-compose.yml, bin/docker-entrypoint.sh
+│   ├── docker/public-ds/     Docker files for the DS instance
+│   └── docker/scripts/       import of sample démarches, for either instance
+└── demarches-simplifiees/    upstream DS, with docker/public-ds/ copied in
 ```
 
-Minimum required values in `cad-gpp/.env`:
+Each instance is a separate Compose project with its own PostgreSQL, Redis, web server (`app`) and delayed_job worker (`worker`). GPP reaches DS through the host, at `http://host.docker.internal:3003`.
+
+## Step 1: Get the code
 
 ```bash
+git clone https://github.com/GenomeCAD/por_gpp.git
+git clone https://github.com/demarche-numerique/demarche.numerique.gouv.fr.git demarches-simplifiees
+git -C demarches-simplifiees checkout 2a34f8c7b1303eb73805a7d44c2242e7e33e1e18
+cp -r por_gpp/docker/public-ds/. demarches-simplifiees/
+```
+
+DS has no Docker setup of its own. The copy adds `Dockerfile`, `docker-compose.yml`, `.dockerignore`, `bin/docker-entrypoint.sh` and `config/image_magick_policy.xml`, none of which exists in DS.
+
+The checkout is upstream commit 2a34f8c7b (9 January 2026), the commit GPP was forked from. The DS Dockerfile patches two DS files at build time so that plain HTTP works (`force_ssl` and the session cookie); with a newer DS commit, check that both patches still apply.
+
+## Step 2: Configure GPP
+
+```bash
+cp por_gpp/config/env.example por_gpp/.env
+```
+
+In `por_gpp/.env`, set these values, adding the lines that are missing:
+
+```bash
+PORT="3002"
 APP_HOST="localhost:3002"
 FORCE_SSL="false"
-SECRET_KEY_BASE="<random string>"
-INVISIBLE_CAPTCHA_SECRET="<random string>"
-AR_ENCRYPTION_PRIMARY_KEY="<32-char string>"
-AR_ENCRYPTION_KEY_DERIVATION_SALT="<32-char string>"
-DB_PASSWORD="<password>"
+SECRET_KEY_BASE="<output of: openssl rand -hex 64>"
+INVISIBLE_CAPTCHA_SECRET="<output of: openssl rand -hex 16>"
+AR_ENCRYPTION_PRIMARY_KEY="<output of: openssl rand -hex 16>"
+AR_ENCRYPTION_KEY_DERIVATION_SALT="<output of: openssl rand -hex 16>"
+DB_PASSWORD="<any password>"
 ```
 
-Leave PUBLIC_DS_API_URL and PUBLIC_DS_API_TOKEN empty for now and modify the host port if necessary.
+`PORT` is the host port Compose publishes the web server on. The other values from `env.example` can stay as they are. Leave `PUBLIC_DS_API_URL` and `PUBLIC_DS_API_TOKEN` out for now: step 7 adds them.
 
-
-## Step 2: Configure DS
+## Step 3: Configure DS
 
 ```bash
 cp demarches-simplifiees/config/env.example demarches-simplifiees/.env
 ```
 
-Minimum required values in `demarches-simplifiees/.env`:
+In `demarches-simplifiees/.env`, set the same values, with port 3003 and new secrets:
 
 ```bash
+PORT="3003"
 APP_HOST="localhost:3003"
 FORCE_SSL="false"
-SECRET_KEY_BASE="<random string>"
-INVISIBLE_CAPTCHA_SECRET="<random string>"
-AR_ENCRYPTION_PRIMARY_KEY="<32-char string>"
-AR_ENCRYPTION_KEY_DERIVATION_SALT="<32-char string>"
-DB_PASSWORD="<password>"
+SECRET_KEY_BASE="<output of: openssl rand -hex 64>"
+INVISIBLE_CAPTCHA_SECRET="<output of: openssl rand -hex 16>"
+AR_ENCRYPTION_PRIMARY_KEY="<output of: openssl rand -hex 16>"
+AR_ENCRYPTION_KEY_DERIVATION_SALT="<output of: openssl rand -hex 16>"
+DB_PASSWORD="<any password>"
 ```
 
-## Step 3: Start both instances
+## Step 4: Build and start both instances
 
 ```bash
-# From GPP directory
-PORT=3002 docker compose up --build -d
+(cd por_gpp && docker compose up --build -d)
+(cd demarches-simplifiees && docker compose up --build -d)
 ```
+
+On first boot, each web container loads the database schema, seeds the test account and runs the migrations. The DS one also compiles its stylesheets and images. To follow it:
 
 ```bash
-# From DS directory
-PORT=3003 docker compose up --build -d
+(cd demarches-simplifiees && docker compose logs -f app)
 ```
 
-First boot takes several minutes. Both instances automatically:
-- Load the database schema
-- Seed the database (creates the default test user)
-- *(DS only)* Compile JS/CSS assets
+An instance is ready when its log shows `Listening on http://0.0.0.0:3000`. GPP then answers on http://localhost:3002 and DS on http://localhost:3003.
 
-Monitor progress:
-```bash
-docker compose logs -f app
-```
+## Step 5: Let the DS test account log in
 
-Wait until you see `Listening on http://0.0.0.0:3000` in the logs.
-
-## Step 4: Fix DS email login token
-
-DS requires an email confirmation token on every login by default. Bypass it
-for the test user:
+DS asks an instructeur for a code sent by email when they log in from a new browser, and this environment sends no email. Turn the check off for the DS test account (GPP's seed already does it on the GPP side):
 
 ```bash
-docker exec demarches-simplifiees-postgres-1 \
-  psql -U tps_development -d ds_private_dev -c \
-  "UPDATE instructeurs SET bypass_email_login_token = true
-   WHERE id = (SELECT i.id FROM instructeurs i
-               JOIN users u ON u.id = i.user_id
-               WHERE u.email = 'test@exemple.fr');"
+(cd demarches-simplifiees && docker compose exec -T postgres sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"') <<'SQL'
+UPDATE instructeurs SET bypass_email_login_token = true
+WHERE id = (SELECT i.id FROM instructeurs i
+            JOIN users u ON u.id = i.user_id
+            WHERE u.email = 'test@exemple.fr');
+SQL
 ```
 
-## Step 5: Create a procedure in DS and generate an API token
+## Step 6: Publish a démarche on DS and create an API token
 
-1. Log into DS at `http://localhost:3003`
-2. Create a procedure (any form fields)
-3. Go to **Profil → Jetons d'API** and generate a token
-4. Copy the token
+**The démarche.** The import script creates the two sample démarches of `por_gpp/docker/scripts/sample_procedures.json` for the test account, and publishes "Déclaration de travaux":
 
-## Step 6: Link GPP to DS
+```bash
+por_gpp/docker/scripts/import_procedures.sh demarches-simplifiees
+```
 
-In `cad-gpp/.env`, set:
+It prints each démarche's number, and the published one's link, `/commencer/declaration-de-travaux`. DS refuses to publish a démarche without a service, so the script also creates a "Service de test" and attaches it. Running it again skips the démarches that already exist; to import your own, pass another JSON file as second argument.
+
+To do the same by hand, log into DS at http://localhost:3003 with the test account (see [Credentials](#credentials)), then:
+
+1. **Create a démarche.** "Créer une nouvelle démarche", then add at least one field to its form.
+2. **Give it a service.** On the démarche page, click "Publier", then the "un service" link, then "Nouveau service". Any valid SIRET is accepted, for example `13002526500013`: with no API Entreprise token, nothing is looked up. The contact fields can hold placeholder values. Click "Enregistrer", then "Affecter".
+3. **Publish it.** Click "Publier" again, choose the end of the démarche's link, enter any URL as the page where the link is shared, and click "Publier". The démarche number is the number in the démarche's address, `/admin/procedures/<number>`.
+
+**The API token.** Log into DS at http://localhost:3003, open "Mon profil", and in the card "Jetons d'identification de l'API (token)" click "Créer un nouveau jeton". Name it `GPP`, choose "toutes mes démarches" and "de lire uniquement", then "Mon jeton peut être utilisé depuis n'importe quelle adresse IP dans le monde" and a lifetime. Copy the token from the "Votre jeton est prêt" page: DS shows it only once.
+
+The "Jetons API" card in the démarche's settings is for API Entreprise and API Particulier tokens, not for this one.
+
+## Step 7: Link GPP to DS
+
+Add these two lines to `por_gpp/.env`:
 
 ```bash
 PUBLIC_DS_API_URL="http://host.docker.internal:3003"
-PUBLIC_DS_API_TOKEN="<token from step 5>"
+PUBLIC_DS_API_TOKEN="<token from step 6>"
 ```
 
-Restart GPP to pick up the new values (no rebuild needed):
+Restart GPP so that it picks them up (no rebuild needed):
 
 ```bash
-cd cad-gpp
-PORT=3002 docker compose up -d
+(cd por_gpp && docker compose up -d)
 ```
+
+Do this before linking any démarche in GPP. GPP stores the public instance's address in each link when the link is created, and uses https://www.demarches-simplifiees.fr when `PUBLIC_DS_API_URL` is empty.
+
+## Step 8: Check the link end to end
+
+1. **Submit a dossier on DS**, on the démarche published in step 6, at http://localhost:3003/commencer/declaration-de-travaux (or your own démarche's link). The test account can act as the usager.
+2. **Link a GPP démarche.** The same script gives GPP démarches to link: `por_gpp/docker/scripts/import_procedures.sh por_gpp`. Log into GPP at http://localhost:3002, open a démarche, enter the DS démarche number in "N° démarche" and click "Lier".
+3. **Synchronise.** Open the GPP démarche's dossier list, `http://localhost:3002/procedures/<GPP démarche number>/tous`, and click "Synchroniser". The DS dossier appears, "en instruction".
+
+The README's "Workflow complet" section describes this flow in more detail.
 
 ## Credentials
 
-| Instance | URL                   | Email             | Password                          |
-|----------|-----------------------|-------------------|-----------------------------------|
-| GPP      | http://localhost:3002 | test@exemple.fr   | this is a very complicated password ! |
-| DS       | http://localhost:3003 | test@exemple.fr   | this is a very complicated password ! |
+| Instance | Login page                          | Email           | Password                              |
+|----------|-------------------------------------|-----------------|---------------------------------------|
+| GPP      | http://localhost:3002/pro_connect   | test@exemple.fr | this is a very complicated password ! |
+| DS       | http://localhost:3003/users/sign_in | test@exemple.fr | this is a very complicated password ! |
 
+Both accounts come from the instances' `db/seeds.rb`. On GPP, the password form is on the same page as the ProConnect button.
 
+## Everyday commands
+
+Run them in `por_gpp/` or `demarches-simplifiees/`:
+
+- `docker compose stop`, then `docker compose up -d`: stop the instance and start it again, data kept.
+- `docker compose up --build -d`: rebuild the image after a code change, then restart.
+- `docker compose logs -f app worker`: follow the web server and the worker.
+- `docker compose down -v`: delete the instance and its data. The next `up` starts from a new database, seeded again, so steps 5 to 8 must be redone.
+
+## Known limitations
+
+- **No email is sent.** Email jobs fail in the DS worker log (`stack level too deep`), and so does the API Entreprise lookup of a new service (`Le jeton API Entreprise est vide`). Both are expected and block nothing.
+- **GPP's "(voir)" link** points to `http://host.docker.internal:3003/...`, which a browser on the host usually cannot open. Use the same path on http://localhost:3003 instead.
+- **No PDF attestations.** The Weasyprint service is commented out in both Compose files.
+- **The API token expires** at the end of the lifetime chosen in step 6. Create a new one and repeat step 7.
+- **Tests only.** When the `procedures` table is missing, the web container's entrypoint drops every table in the database before loading the schema. Do not reuse these Compose files or entrypoints against a database that matters.

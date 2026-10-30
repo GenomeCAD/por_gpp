@@ -108,7 +108,9 @@ L'instance publique demarche.numerique.gouv.fr est un service existant, administ
 
 1. **Disposer d'un compte administrateur** sur demarche.numerique.gouv.fr
 2. **Créer et publier une démarche** avec le formulaire destiné aux usagers
-3. **Générer un token API** (dans les paramètres de la démarche, rubrique « Token API ») — ce token sera utilisé par le GPP pour interroger l'API GraphQL
+3. **Générer un token API** (menu « Mon profil », carte « Jetons d'identification de l'API (token) », bouton « Créer un nouveau jeton », en lecture seule) : ce token sera utilisé par le GPP pour interroger l'API GraphQL. La carte « Jetons API » des paramètres de la démarche sert à API Entreprise et API Particulier, pas à ce token.
+
+Pour tester sans compte sur l'instance publique, [DOCKER-SETUP.md](DOCKER-SETUP.md) décrit un environnement local à deux instances : le GPP et une instance Démarches Simplifiées qui joue le rôle de la plateforme publique, toutes deux sous Docker (fichiers de l'instance dans `docker/public-ds/`).
 
 ---
 
@@ -190,7 +192,7 @@ Le tableau est trié par date de dépôt (du plus ancien au plus récent) par d�
 
 ## Module Calendrier CSE
 
-Les dossiers déposés sont examinés lors de Comités Sociaux et Économiques (CSE) mensuels. Un dossier doit être déposé **au moins 2 semaines avant la date du CSE** (T0 − 2 semaines) pour être étudié lors de cette session.
+Les dossiers déposés sont examinés lors des séances mensuelles du Comité Scientifique et Éthique (CSE). Un dossier doit être déposé **au moins 2 semaines avant la date du CSE** (T0 − 2 semaines) pour être étudié lors de cette session.
 
 ### Configuration (administrateur)
 

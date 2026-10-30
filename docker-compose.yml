@@ -1,27 +1,27 @@
 name: gestionnaire-processus-projet
 
-# GPP — Gestionnaire des Processus Projets
+# GPP - Gestionnaire des Processus Projets
 #
 # Services:
-#   postgres   — PostgreSQL 17 database
-#   redis      — Redis (ActionCable / WebSocket support)
-#   weasyprint — PDF generation server
-#   app        — Rails web server
-#   worker     — delayed_job background worker
+#   postgres   - PostgreSQL 17 database
+#   redis      - Redis (ActionCable / WebSocket support)
+#   weasyprint - PDF generation server (commented out below: no PDF attestations)
+#   app        - Rails web server
+#   worker     - delayed_job background worker
 #
 # Quick start:
 #   1. Copy config/env.example to .env and fill in the required values.
 #   2. docker compose up --build
 #
 # Required variables in .env (no defaults):
-#   SECRET_KEY_BASE            — generate with: docker compose run --rm app bin/rails secret
-#   INVISIBLE_CAPTCHA_SECRET   — any random string
-#   DB_PASSWORD                — database password
-#   APP_HOST                   — host:port visible to users (e.g. gpp.example.org)
+#   SECRET_KEY_BASE            - generate with: docker compose run --rm app bin/rails secret
+#   INVISIBLE_CAPTCHA_SECRET   - any random string
+#   DB_PASSWORD                - database password
+#   APP_HOST                   - host:port visible to users (e.g. gpp.example.org)
 #
-# GPP-specific variables (optional — needed to link to the public platform):
-#   PUBLIC_DS_API_URL          — URL of the public demarches platform
-#   PUBLIC_DS_API_TOKEN        — API token for that platform
+# GPP-specific variables (optional - needed to link to the public platform):
+#   PUBLIC_DS_API_URL          - URL of the public demarches platform
+#   PUBLIC_DS_API_TOKEN        - API token for that platform
 
 services:
   # Infrastructure
@@ -58,7 +58,7 @@ services:
     restart: unless-stopped
     ports:
       - "${PORT:-3000}:3000"
-    # Allows containers to reach services running on the host (e.g. PUBLIC_DS_API_URL=http://host.docker.internal:3001)
+    # Allows containers to reach services running on the host (e.g. PUBLIC_DS_API_URL=http://host.docker.internal:3003)
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -100,8 +100,8 @@ services:
       PUBLIC_DS_API_TOKEN: ${PUBLIC_DS_API_TOKEN:-}
 
       # File storage
-      # local  — files stored in the app-storage volume (default)
-      # amazon — files stored in S3 (fill in S3_* vars below)
+      # local  - files stored in the app-storage volume (default)
+      # amazon - files stored in S3 (fill in S3_* vars below)
       ACTIVE_STORAGE_SERVICE: ${ACTIVE_STORAGE_SERVICE:-local}
       S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:-}
       S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:-}

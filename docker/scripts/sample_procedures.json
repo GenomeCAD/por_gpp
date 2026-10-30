@@ -1,0 +1,114 @@
+[
+  {
+    "libelle": "Demande de subvention",
+    "description": "Formulaire de demande de subvention pour les associations et organismes.",
+    "organisation": "Direction des Finances",
+    "cadre_juridique": "Délibération du conseil n° 2025-001 du 1er janvier 2025",
+    "for_individual": false,
+    "duree_conservation_dossiers_dans_ds": 36,
+    "administrateur_email": "test@exemple.fr",
+    "publish": false,
+    "champs": [
+      {
+        "type_champ": "text",
+        "libelle": "Nom du projet",
+        "mandatory": true
+      },
+      {
+        "type_champ": "textarea",
+        "libelle": "Description du projet",
+        "description": "Décrivez votre projet en 500 mots maximum.",
+        "mandatory": true
+      },
+      {
+        "type_champ": "decimal_number",
+        "libelle": "Montant de la subvention demandée (€)",
+        "mandatory": true
+      },
+      {
+        "type_champ": "drop_down_list",
+        "libelle": "Domaine d'activité",
+        "mandatory": true,
+        "options": ["Culture", "Sport", "Social", "Environnement", "Éducation"]
+      },
+      {
+        "type_champ": "date",
+        "libelle": "Date de début du projet",
+        "mandatory": true
+      },
+      {
+        "type_champ": "date",
+        "libelle": "Date de fin du projet",
+        "mandatory": false
+      },
+      {
+        "type_champ": "piece_justificative",
+        "libelle": "Budget prévisionnel",
+        "description": "Fichier PDF ou tableur.",
+        "mandatory": true
+      },
+      {
+        "type_champ": "piece_justificative",
+        "libelle": "Statuts de l'association",
+        "mandatory": false
+      }
+    ]
+  },
+  {
+    "libelle": "Déclaration de travaux",
+    "description": "Formulaire de déclaration préalable pour travaux de faible importance.",
+    "organisation": "Service Urbanisme",
+    "cadre_juridique": "Code de l'urbanisme, article R421-9",
+    "for_individual": true,
+    "duree_conservation_dossiers_dans_ds": 60,
+    "administrateur_email": "test@exemple.fr",
+    "publish": true,
+    "path": "declaration-de-travaux",
+    "champs": [
+      {
+        "type_champ": "address",
+        "libelle": "Adresse du bien concerné",
+        "mandatory": true
+      },
+      {
+        "type_champ": "drop_down_list",
+        "libelle": "Nature des travaux",
+        "mandatory": true,
+        "options": [
+          "Ravalement de façade",
+          "Modification de toiture",
+          "Création d'une clôture",
+          "Extension inférieure à 20 m²",
+          "Autre"
+        ]
+      },
+      {
+        "type_champ": "textarea",
+        "libelle": "Description des travaux",
+        "mandatory": true
+      },
+      {
+        "type_champ": "integer_number",
+        "libelle": "Surface concernée (m²)",
+        "mandatory": false
+      },
+      {
+        "type_champ": "piece_justificative",
+        "libelle": "Plan de situation",
+        "description": "Plan indiquant la localisation du terrain dans la commune.",
+        "mandatory": true
+      },
+      {
+        "type_champ": "piece_justificative",
+        "libelle": "Plan de masse",
+        "description": "Plan des constructions à édifier ou à modifier.",
+        "mandatory": true
+      },
+      {
+        "type_champ": "checkbox",
+        "libelle": "Je certifie que les informations fournies sont exactes",
+        "mandatory": true
+      }
+    ]
+  }
+]

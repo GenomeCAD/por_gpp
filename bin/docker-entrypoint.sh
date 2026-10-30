@@ -3,13 +3,13 @@ set -e
 
 # Web app strategy when schema is missing:
 #   1. Drop all user tables (preserve extensions like PostGIS / pgcrypto).
-#   2. db:schema:load — retried up to 3 times (PostGIS init can race on first boot).
-#   3. db:seed — runs once, on fresh DB only.
-#   4. db:migrate — applies any pending migrations (no-op if none).
+#   2. db:schema:load - retried up to 3 times (PostGIS init can race on first boot).
+#   3. db:seed - runs once, on fresh DB only.
+#   4. db:migrate - applies any pending migrations (no-op if none).
 #
 # Worker strategy when schema is missing:
 #   1. Wait (poll every 5 s) until the "procedures" table exists.
-#   2. db:migrate — applies any pending migrations (no-op if none).
+#   2. db:migrate - applies any pending migrations (no-op if none).
 
 psql_cmd() {
   PGPASSWORD="${DB_PASSWORD}" psql \
@@ -47,7 +47,7 @@ echo "[entrypoint] Checking database state..."
 if [ "$(procedures_exists)" = "0" ]; then
   # Distinguish web app (bin/rails server) from worker (bin/rake jobs:work).
   if [ "$1" = "bin/rails" ]; then
-    echo "[entrypoint] Schema not initialized — loading schema (up to 3 attempts)..."
+    echo "[entrypoint] Schema not initialized - loading schema (up to 3 attempts)..."
 
     drop_all_tables
 
@@ -63,11 +63,11 @@ if [ "$(procedures_exists)" = "0" ]; then
       fi
 
       if [ "${attempt}" -ge "${MAX_ATTEMPTS}" ]; then
-        echo "[entrypoint] Schema load failed after ${MAX_ATTEMPTS} attempts — giving up."
+        echo "[entrypoint] Schema load failed after ${MAX_ATTEMPTS} attempts - giving up."
         exit 1
       fi
 
-      echo "[entrypoint] Schema load attempt ${attempt} failed — cleaning up and retrying in 5s..."
+      echo "[entrypoint] Schema load attempt ${attempt} failed - cleaning up and retrying in 5s..."
       sleep 5
       drop_all_tables
       attempt=$((attempt + 1))

@@ -14,10 +14,11 @@ Le GPP utilise l'API GraphQL de la plateforme publique pour synchroniser les dos
 ## Générer le token
 
 1. Connectez-vous sur demarche.numerique.gouv.fr avec un compte **administrateur** de la démarche publique.
-2. Accédez à la page de gestion de la démarche concernée.
-3. Dans la section **« Autres paramètres »**, cliquez sur **« Token API »**.
-4. Cliquez sur **« Générer un nouveau jeton »**, donnez-lui un nom descriptif (par exemple : « GPP GIP CAD »).
-5. Copiez le token affiché — il ne sera plus visible par la suite.
+2. Ouvrez votre profil (menu **« Mon profil »**) et, dans la carte **« Jetons d'identification de l'API (token) »**, cliquez sur **« Créer un nouveau jeton »**. La carte « Jetons API » des paramètres de la démarche sert à API Entreprise et API Particulier, pas à ce token.
+3. Donnez-lui un nom descriptif (par exemple : « GPP GIP CAD »).
+4. Privilèges : choisissez la démarche concernée (ou « toutes mes démarches ») et **« de lire uniquement »** : le GPP ne fait que lire.
+5. Sécurité : indiquez si possible les réseaux autorisés, puis une durée de validité (une durée infinie exige le filtrage réseau).
+6. Copiez le token affiché : il ne sera plus visible par la suite.
 
 ## Configurer le token dans le GPP
 

@@ -1,5 +1,5 @@
-# Js dependencies
-FROM oven/bun:1 AS bun
+# Js dependencies. The Bun version is pinned here only: the image below copies this binary.
+FROM oven/bun:1.4.4 AS bun
 WORKDIR /app
 COPY package.json bun.lock* ./
 COPY patches ./patches/
@@ -26,9 +26,9 @@ ENV APP_PATH=/app \
     RAILS_LOG_TO_STDOUT=true \
     RAILS_SERVE_STATIC_FILES=true \
     RUBY_YJIT_ENABLE=true \
-    # We use delayed_job (DB-backed) instead of Sidekiq — no Redis needed for jobs.
+    # We use delayed_job (DB-backed) instead of Sidekiq - no Redis needed for jobs.
     RAILS_QUEUE_ADAPTER=delayed_job \
-    # GPP identity — override via env if needed.
+    # GPP identity - override via env if needed.
     APPLICATION_NAME="Gestionnaire des Processus Projets" \
     APPLICATION_BASE_URL="https://demarche.numerique.gouv.fr" \
     # Default to local filesystem storage; set ACTIVE_STORAGE_SERVICE=amazon for S3.
@@ -67,12 +67,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 COPY config/image_magick_policy.xml /etc/ImageMagick-6/policy.xml
 
-# Non-root user; home is the app directory so Bun installs there.
+COPY --from=bun /usr/local/bin/bun /usr/local/bin/bun
+
+# Non-root user; home is the app directory.
 RUN useradd --no-log-init --create-home --home-dir $APP_PATH --shell /bin/bash appuser
 USER appuser
 WORKDIR $APP_PATH
-RUN curl -fsSL https://bun.sh/install | bash
-ENV PATH="$APP_PATH/.bun/bin:$PATH"
 
 # Gems
 COPY --chown=appuser:appuser --from=builder /app $APP_PATH/
