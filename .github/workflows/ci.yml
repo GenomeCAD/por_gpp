@@ -1,5 +1,7 @@
 name: Continuous Integration
 on:
+  push:
+    branches: [main]
   pull_request:
     branches: [main]
   merge_group:
@@ -47,11 +49,6 @@ jobs:
 
       - name: Run tests
         run: bun run test
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   unit_tests:
     name: Unit tests
@@ -101,11 +98,6 @@ jobs:
           name: rspec-results-${{ github.job }}-${{ strategy.job-index }}
           path: tmp/rspec_${{ github.job }}_${{ strategy.job-index }}.junit.xml
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
   unit_tests_slow_or_deps:
     name: (slow, dep) unit tests
     runs-on: ubuntu-22.04
@@ -143,15 +135,10 @@ jobs:
         run: |
           bin/rspec --tag slow --tag external_deps --format progress --format RspecJunitFormatter
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
   system_tests:
     name: System tests
 
-    runs-on: warp-ubuntu-2204-x64-2x
+    runs-on: ubuntu-22.04
     timeout-minutes: 20
     env:
       RUBY_YJIT_ENABLE: "1"
@@ -202,11 +189,6 @@ jobs:
         with:
           name: rspec-results-${{ github.job }}-${{ strategy.job-index }}
           path: tmp/rspec_${{ github.job }}_${{ strategy.job-index }}.junit.xml
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   save_test_reports:
     name: Save test reports
