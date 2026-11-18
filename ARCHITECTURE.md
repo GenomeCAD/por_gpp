@@ -117,6 +117,7 @@ Le lien pointe aujourd'hui vers `<instance>/dossiers/<numéro du dossier>`. Dans
 
 - **Liste de contrôle** : les champs Oui/Non de la démarche du GPP sont les critères de contrôle. « Accepter » reste désactivé tant qu'un critère n'est pas coché « Oui » ; refuser et classer sans suite restent possibles à tout moment.
 - **Notes et pièces jointes** par critère (`ChampNote`), en lecture seule une fois le dossier terminé.
+- **Tableau des dossiers** : la colonne « Demandeur » affiche l'email du compte qui a déposé le dossier sur la plateforme, mais son tri et son filtre portent sur le propriétaire local, le compte technique, le même pour tous les dossiers ; à corriger.
 - **Calendrier du CSE** : l'administrateur choisit les dates des séances (« Calendrier CSE »). La date limite de dépôt est la date du prochain CSE moins 14 jours. Quand le tableau des dossiers est trié par date de dépôt, un séparateur la signale et les dossiers dont la date de dépôt la dépasse sont grisés ; cette date de dépôt est aujourd'hui celle de la première synchronisation (section 6.6, point 2).
 
 ### 6.5 Retour vers la plateforme publique (cible)
