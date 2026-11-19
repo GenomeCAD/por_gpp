@@ -22,16 +22,21 @@ app/jobs/sync_dossiers_job.rb             periodic synchronisation of one démar
 config/initializers/auto_sync_scheduler.rb    re-enqueues auto-sync jobs at boot
 app/controllers/administrateurs/procedures_controller.rb   link, unlink, sync settings, CSE calendar
 app/controllers/instructeurs/procedures_controller.rb      manual synchronisation, dossier table
-app/javascript/controllers/champ_note_controller.ts, app/views/instructeurs/champ_notes/
+app/controllers/instructeurs/dossiers_controller.rb        checklist and notes: update_public_champs, update_champ_note, attach_champ_note_document
+app/views/shared/dossiers/_checklist.html.haml             the checklist on the dossier page
+app/components/instructeurs/instruction_menu_component*    upstream component, changed: "Accepter" stays disabled until every checklist field is "Oui"
+app/components/procedure/card/{auto_sync,cse_calendar}_component*, app/views/administrateurs/procedures/{auto_sync,cse_calendar}.html.haml
+app/javascript/controllers/{auto_sync,cse_calendar,champ_note}_controller.ts, app/views/instructeurs/champ_notes/
 db/migrate/202602*_create_{procedure_mirrors,linked_dossiers,champ_notes,cse_dates}.rb
+doc/faqs/           the GPP's own FAQ (general, administrateur, instructeur), served in the application at /faq/:category/:slug
 docker/public-ds/   Docker files for a local DS instance that stands in for the public platform
 docker/scripts/     import of sample démarches into either instance
 ```
 
 ## Where AGENTS.md does not apply
 
-- **Jobs run on delayed_job, not Sidekiq.** `Procfile.dev` and the Docker worker run `bin/rake jobs:work`, and the Docker image sets `RAILS_QUEUE_ADAPTER=delayed_job`. `auto_sync_scheduler.rb` looks for pending jobs in the `Delayed::Job` table, so auto-sync depends on that adapter. `production.rb` still defaults to Sidekiq when `RAILS_QUEUE_ADAPTER` is unset: set it explicitly in any deployment.
-- **No applicant (usager) pages.** They were removed from the fork. Dossiers are created by the synchronisation, in the "en instruction" state, never by a form submission.
+- **Jobs run on delayed_job, not Sidekiq, once `RAILS_QUEUE_ADAPTER=delayed_job` is set.** `Procfile.dev` and the Docker worker run `bin/rake jobs:work`, and the Docker image sets the variable. Elsewhere it must be set by hand: `development.rb` defaults to `async`, which runs jobs inside the web process and leaves the `jobs` process of `bin/dev` idle, and `production.rb` defaults to Sidekiq. Put it in `.env` locally and set it in any deployment. `auto_sync_scheduler.rb` looks for pending jobs in the `Delayed::Job` table, so auto-sync depends on that adapter.
+- **No applicant (usager) pages.** They were removed from the fork, and dossiers reach the GPP through the synchronisation, in the "en instruction" state. The upstream pre-fill API is still routed, though: `POST /api/public/v1/demarches/<id>/dossiers` needs no authentication and creates a draft (brouillon) dossier on any published or draft GPP démarche. Whether to close it is listed in ARCHITECTURE.md (sections 7 and 10).
 - **Contribution rules.** The upstream rules (French PR titles in the "ETQ ..." form, GPG-signed commits, upstream issue references, Crisp support) are the upstream team's. This repository's conventions are in "Git" below.
 - **Tests required.** Upstream requires tests with every change, and the GPP-specific code above has none yet. Any change to it comes with specs (`spec/models/`, `spec/services/`, `spec/jobs/`, `spec/system/` for the instructor screens), and adding specs for the existing GPP code is welcome.
 
@@ -43,7 +48,7 @@ docker/scripts/     import of sample démarches into either instance
 
 ## Things that are easy to get wrong
 
-- `PUBLIC_DS_API_URL` is read when a démarche is linked and stored in its `ProcedureMirror`; changing the variable later does not move existing links. Without it, a link points to `https://www.demarches-simplifiees.fr`.
+- `PUBLIC_DS_API_URL` is read when a démarche is linked and stored in its `ProcedureMirror`; changing the variable later does not move existing links. When the variable is not set at all, a link points to `https://www.demarches-simplifiees.fr`; an empty value is not replaced by that default, and "Lier" then fails with "Erreur lors de la liaison". The Compose files always pass the variable, empty when `.env` does not set it.
 - `PUBLIC_DS_API_TOKEN` is read at each synchronisation. Without it, the manual buttons show an alert and the auto-sync job does nothing, silently. It is a read-only GraphQL token created on the public platform's profile page ("Jetons d'identification de l'API (token)"), not on the démarche's "Jetons API" card.
 - The public platform refuses to publish a démarche that has no "service".
 - Dossiers hold applicants' personal data. Use the seeded and sample data only; never copy real dossiers into fixtures, specs, logs or messages.
@@ -51,7 +56,7 @@ docker/scripts/     import of sample démarches into either instance
 
 ## Documentation
 
-- README.md (French) and DOCKER-SETUP.md (English) describe the GPP, and ARCHITECTURE.md (French) is the architecture proposal: the flows in place, the target evolutions and the decisions expected from the GIP-CAD. The upstream documents (CONTRIBUTING, `doc/`) describe démarche numérique. Update the GPP documents when GPP behaviour changes, including the flows that ARCHITECTURE.md marks as in place.
+- README.md (French) and DOCKER-SETUP.md (English) describe the GPP, ARCHITECTURE.md (French) is the architecture proposal (the flows in place, the target evolutions and the decisions expected from the GIP-CAD), and `doc/faqs/` (French) is the help the application shows its users. The other upstream documents (CONTRIBUTING, the rest of `doc/`) describe démarche numérique. Update the GPP documents when GPP behaviour changes, including the flows that ARCHITECTURE.md marks as in place and the FAQ pages on the screens you change.
 - Describe the current state only: history belongs in commits.
 - Check every number and every UI label you quote against the application.
 - Markdown prose is not hard-wrapped: one paragraph, one line. ASCII punctuation only: `-` rather than em or en dashes, `->` rather than arrow characters.
@@ -69,7 +74,7 @@ Every review of an implementation is done by a separate agent started with a cle
 - Never review in the session or agent that wrote or changed the code, and never with a forked agent, which inherits the implementer's conversation. In Claude Code, launch the reviewer with the Agent tool and a non-fork agent type (for example `general-purpose`), or start a new session (`/clear`, or a new terminal) before running a review command such as `/code-review`.
 - One review, one agent. After fixes, start another fresh agent for the next round instead of resuming the previous reviewer, which carries its own earlier conclusions.
 - Brief the reviewer with facts only: the pull request number or the `base..head` range (for unpushed work, `origin/main..HEAD`), what was asked, the README, DOCKER-SETUP or ARCHITECTURE sections it touches, and the commands above. Do not pass on the implementer's summary, reasoning or self-assessment: the reviewer reads the diff and the code itself.
-- Ask the reviewer to check the change against what was asked, run the specs of the area and the linters and say what did not run, check that README.md, DOCKER-SETUP.md and ARCHITECTURE.md are still true, and check the rules in this file and in AGENTS.md (accessibility, security). Each finding comes with `file:line` and a concrete failure scenario. The reviewer reports; it does not edit.
+- Ask the reviewer to check the change against what was asked, run the specs of the area and the linters and say what did not run, check that README.md, DOCKER-SETUP.md, ARCHITECTURE.md and the FAQ pages of the screens changed are still true, and check the rules in this file and in AGENTS.md (accessibility, security). Each finding comes with `file:line` and a concrete failure scenario. The reviewer reports; it does not edit.
 - The implementing agent answers every finding, by fixing it or by explaining to the developer why not. No finding is dropped silently. The developer decides and pushes; an agent review does not replace theirs.
 
 Why: an agent that has just written the code shares its assumptions, its reading of the request and its blind spots, and tends to check what it meant to write rather than what is there.
