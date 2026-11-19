@@ -88,6 +88,8 @@ DB_PASSWORD="<any password>"
 (cd demarches-simplifiees && docker compose up --build -d)
 ```
 
+The first `up` on new volumes can stop with `failed to mkdir .../app-tmp/_data/cache: file exists`: the `app` and `worker` containers both fill the shared `app-tmp` volume at the same moment. Run the same command again; the volume is filled by then.
+
 On first boot, each web container loads the database schema, seeds the test account and runs the migrations. The DS one also compiles its stylesheets and images. To follow it:
 
 ```bash
