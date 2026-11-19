@@ -17,7 +17,7 @@
 #   champs (list of fields)
 # Supported type_champ values:
 #   text, textarea, integer_number, decimal_number, email, phone, address,
-#   date, datetime, checkbox, siret, civilite,
+#   date, datetime, checkbox, yes_no, siret, civilite,
 #   drop_down_list (requires "options" array),
 #   multiple_drop_down_list (requires "options" array),
 #   piece_justificative, header_section, explication
@@ -95,6 +95,9 @@ definitions.each do |defn|
     procedure.create_generic_labels
     admin.instructeur.assign_to_procedure(procedure)
 
+    # Each field goes after the previous one: without after_stable_id,
+    # add_type_de_champ inserts at the top and the form comes out reversed.
+    previous = nil
     Array(defn["champs"]).each do |champ|
       params = {
         type_champ:  champ.fetch("type_champ"),
@@ -103,7 +106,12 @@ definitions.each do |defn|
         description: champ.fetch("description", "")
       }
       params[:drop_down_options] = champ["options"] if champ["options"]
-      procedure.draft_revision.add_type_de_champ(params)
+      params[:after_stable_id] = previous.stable_id if previous
+      previous = procedure.draft_revision.add_type_de_champ(params)
+      # add_type_de_champ reports a failure through errors, it does not raise
+      unless previous.persisted?
+        raise "field '#{params[:libelle]}': #{previous.errors.full_messages.join(', ')}"
+      end
     end
 
     if defn.fetch("publish", false)
