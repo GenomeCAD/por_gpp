@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-#
+
 # Import démarches from a JSON file into the instance this runs in (GPP or DS).
 #
 # Usage (docker/scripts/import_procedures.sh wraps it for the test stand):
@@ -33,7 +33,7 @@ TEST_SERVICE = {
   siret: "13002526500013",
   email: "contact@example.org",
   horaires: "Du lundi au vendredi de 9h à 17h",
-  adresse: "1 rue de Test, 75000 Paris"
+  adresse: "1 rue de Test, 75000 Paris",
 }.freeze
 
 def test_service_for(admin)
@@ -103,7 +103,7 @@ definitions.each do |defn|
         type_champ:  champ.fetch("type_champ"),
         libelle:     champ.fetch("libelle"),
         mandatory:   champ.fetch("mandatory", false),
-        description: champ.fetch("description", "")
+        description: champ.fetch("description", ""),
       }
       params[:drop_down_options] = champ["options"] if champ["options"]
       params[:after_stable_id] = previous.stable_id if previous
