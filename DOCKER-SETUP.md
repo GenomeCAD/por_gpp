@@ -146,7 +146,7 @@ Restart GPP so that it picks them up (no rebuild needed):
 (cd por_gpp && docker compose up -d)
 ```
 
-Do this before linking any démarche in GPP. GPP stores the public instance's address in each link when the link is created, and uses https://www.demarches-simplifiees.fr when `PUBLIC_DS_API_URL` is empty.
+Do this before linking any démarche in GPP. GPP stores the public instance's address in each link when the link is created. Without `PUBLIC_DS_API_URL` in `.env`, Compose passes the variable empty and "Lier" fails with "Erreur lors de la liaison".
 
 ## Step 8: Check the link end to end
 

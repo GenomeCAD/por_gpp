@@ -62,7 +62,7 @@ Le GPP se configure via le fichier `.env` à la racine du projet (voir `config/e
 
 | Variable | Description |
 |----------|-------------|
-| `PUBLIC_DS_API_URL` | URL de l'instance publique (ex : `https://demarche.numerique.gouv.fr`). Lue au moment de la liaison d'une démarche et conservée dans la liaison ; à défaut, `https://www.demarches-simplifiees.fr`, ancienne adresse de la plateforme |
+| `PUBLIC_DS_API_URL` | URL de l'instance publique (ex : `https://demarche.numerique.gouv.fr`). Lue au moment de la liaison d'une démarche et conservée dans la liaison. Si la variable est absente, `https://www.demarches-simplifiees.fr`, ancienne adresse de la plateforme ; vide, elle n'est pas remplacée par cette adresse et la liaison échoue (« Erreur lors de la liaison ») |
 | `PUBLIC_DS_API_TOKEN` | Token API généré sur l'instance publique, pour authentifier les appels GraphQL. Lu à chaque synchronisation |
 | `RAILS_QUEUE_ADAPTER` | `delayed_job`. Obligatoire en production, où la valeur par défaut est Sidekiq ; en développement, sans elle, les jobs tournent dans le processus web (adaptateur `async`) et le worker lancé par `bin/dev` ne sert pas |
 | `APPLICATION_NAME` | Nom affiché dans l'en-tête (par défaut : `Gestionnaire des Processus Projets`) |
