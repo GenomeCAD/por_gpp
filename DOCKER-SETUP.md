@@ -111,13 +111,13 @@ SQL
 
 ## Step 6: Publish a démarche on DS and create an API token
 
-**The démarche.** The import script creates the two sample démarches of `por_gpp/docker/scripts/sample_procedures.json` for the test account, and publishes "Déclaration de travaux":
+**The démarche.** The import script creates the GIP-CAD's application form for the Comité Scientifique et Éthique (CSE), described in `por_gpp/docker/scripts/cse_procedures_ds.json`, for the test account, and publishes it:
 
 ```bash
-por_gpp/docker/scripts/import_procedures.sh demarches-simplifiees
+por_gpp/docker/scripts/import_procedures.sh demarches-simplifiees por_gpp/docker/scripts/cse_procedures_ds.json
 ```
 
-It prints each démarche's number, and the published one's link, `/commencer/declaration-de-travaux`. DS refuses to publish a démarche without a service, so the script also creates a "Service de test" and attaches it. Running it again skips the démarches that already exist; to import your own, pass another JSON file as second argument.
+It prints the démarche's number and its link, `/commencer/depot-candidature-cse`. DS refuses to publish a démarche without a service, so the script also creates a "Service de test" and attaches it. Running it again skips the démarches that already exist. Without a JSON file, the script imports `sample_procedures.json`, two generic démarches; to import your own, pass another JSON file as second argument.
 
 To do the same by hand, log into DS at http://localhost:3003 with the test account (see [Credentials](#credentials)), then:
 
@@ -148,8 +148,8 @@ Do this before linking any démarche in GPP. GPP stores the public instance's ad
 
 ## Step 8: Check the link end to end
 
-1. **Submit a dossier on DS**, on the démarche published in step 6, at http://localhost:3003/commencer/declaration-de-travaux (or your own démarche's link). The test account can act as the usager.
-2. **Link a GPP démarche.** The same script gives GPP démarches to link: `por_gpp/docker/scripts/import_procedures.sh por_gpp`. Log into GPP at http://localhost:3002, open a démarche, enter the DS démarche number in "N° démarche" and click "Lier".
+1. **Submit a dossier on DS**, on the démarche published in step 6, at http://localhost:3003/commencer/depot-candidature-cse (or your own démarche's link). The test account can act as the usager.
+2. **Link a GPP démarche.** The same script creates the GPP démarche that reviews these applications, with the seven Oui/Non criteria of the checklist: `por_gpp/docker/scripts/import_procedures.sh por_gpp por_gpp/docker/scripts/cse_procedures_gpp.json`. Log into GPP at http://localhost:3002, open this démarche, enter the DS démarche number in "N° démarche" and click "Lier".
 3. **Synchronise.** Open the GPP démarche's dossier list, `http://localhost:3002/procedures/<GPP démarche number>/tous`, and click "Synchroniser". The DS dossier appears, "en instruction".
 
 The README's "Workflow complet" section describes this flow in more detail.

@@ -1,0 +1,37 @@
+[
+  {
+    "libelle": "Depot de dossier de candidature CSE",
+    "description": "Formulaire de depot de dossier de candidature pour passage en Comite Scientifique et Ethique (CSE)",
+    "cadre_juridique": "Declaration d autorisation recherche",
+    "for_individual": true,
+    "duree_conservation_dossiers_dans_ds": 2,
+    "administrateur_email": "test@exemple.fr",
+    "publish": true,
+    "path": "depot-candidature-cse",
+    "lien_site_web": "https://gipcad.fr",
+    "champs": [
+      { "type_champ": "header_section", "libelle": "Informations sur le projet" },
+      { "type_champ": "text", "libelle": "Nom du projet", "mandatory": true },
+      { "type_champ": "text", "libelle": "Sigle / nom court du projet" },
+      { "type_champ": "textarea", "libelle": "Description du projet", "mandatory": true },
+      { "type_champ": "header_section", "libelle": "Organisme porteur" },
+      { "type_champ": "text", "libelle": "Nom de l organisme", "mandatory": true },
+      { "type_champ": "text", "libelle": "Identifiant (SIRET/VAT/DUNS)", "mandatory": true },
+      { "type_champ": "textarea", "libelle": "Adresse postale", "mandatory": true },
+      { "type_champ": "header_section", "libelle": "Cadre reglementaire" },
+      {
+        "type_champ": "drop_down_list",
+        "libelle": "Methodologie de reference / cadre reglementaire",
+        "mandatory": true,
+        "options": ["MR", "Declaration simplifiee", "Autorisation recherche", "Autre"]
+      },
+      { "type_champ": "header_section", "libelle": "Calendrier previsionnel" },
+      { "type_champ": "date", "libelle": "Date souhaitee de debut", "mandatory": true },
+      { "type_champ": "text", "libelle": "Duree initiale prevue", "mandatory": true },
+      { "type_champ": "text", "libelle": "Duree de retention des donnees", "mandatory": true },
+      { "type_champ": "header_section", "libelle": "Pieces justificatives" },
+      { "type_champ": "piece_justificative", "libelle": "Dossier de candidature (PDF)", "mandatory": true },
+      { "type_champ": "piece_justificative", "libelle": "Declaration CNIL" }
+    ]
+  }
+]

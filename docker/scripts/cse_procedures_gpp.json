@@ -1,0 +1,22 @@
+[
+  {
+    "libelle": "Demande d'etude multicentrique",
+    "description": "Procedure interne de vérification des dossiers de candidature pour étude multicentrique",
+    "cadre_juridique": "Reglement interieur GIP-CAD",
+    "for_individual": true,
+    "duree_conservation_dossiers_dans_ds": 2,
+    "administrateur_email": "test@exemple.fr",
+    "publish": true,
+    "path": "demande-etude-multicentrique",
+    "lien_site_web": "https://gipcad.fr",
+    "champs": [
+      { "type_champ": "yes_no", "libelle": "Identite du demandeur verifiee", "mandatory": true },
+      { "type_champ": "yes_no", "libelle": "Donnees demandees existent dans l EDS", "mandatory": true },
+      { "type_champ": "yes_no", "libelle": "Contribution du projet au bien commun et pertinence des usages prevus", "mandatory": true },
+      { "type_champ": "yes_no", "libelle": "Faisabilite du projet a partir des donnees disponibles", "mandatory": true },
+      { "type_champ": "yes_no", "libelle": "Pertinence du set de donnees PFMG2025 pour le projet de recherche", "mandatory": true },
+      { "type_champ": "yes_no", "libelle": "Sensibilite des resultats de l analyse des donnees PFMG2025", "mandatory": true },
+      { "type_champ": "yes_no", "libelle": "Conformite au RGPD et au cadre reglementaire", "mandatory": true }
+    ]
+  }
+]
