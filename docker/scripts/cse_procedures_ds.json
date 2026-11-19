@@ -1,8 +1,8 @@
 [
   {
-    "libelle": "Depot de dossier de candidature CSE",
-    "description": "Formulaire de depot de dossier de candidature pour passage en Comite Scientifique et Ethique (CSE)",
-    "cadre_juridique": "Declaration d autorisation recherche",
+    "libelle": "Dépôt de dossier de candidature CSE",
+    "description": "Formulaire de dépôt de dossier de candidature pour passage en Comité Scientifique et Éthique (CSE)",
+    "cadre_juridique": "Déclaration d'autorisation recherche",
     "for_individual": true,
     "duree_conservation_dossiers_dans_ds": 2,
     "administrateur_email": "test@exemple.fr",
@@ -15,23 +15,23 @@
       { "type_champ": "text", "libelle": "Sigle / nom court du projet" },
       { "type_champ": "textarea", "libelle": "Description du projet", "mandatory": true },
       { "type_champ": "header_section", "libelle": "Organisme porteur" },
-      { "type_champ": "text", "libelle": "Nom de l organisme", "mandatory": true },
+      { "type_champ": "text", "libelle": "Nom de l'organisme", "mandatory": true },
       { "type_champ": "text", "libelle": "Identifiant (SIRET/VAT/DUNS)", "mandatory": true },
       { "type_champ": "textarea", "libelle": "Adresse postale", "mandatory": true },
-      { "type_champ": "header_section", "libelle": "Cadre reglementaire" },
+      { "type_champ": "header_section", "libelle": "Cadre réglementaire" },
       {
         "type_champ": "drop_down_list",
-        "libelle": "Methodologie de reference / cadre reglementaire",
+        "libelle": "Méthodologie de référence / cadre réglementaire",
         "mandatory": true,
-        "options": ["MR", "Declaration simplifiee", "Autorisation recherche", "Autre"]
+        "options": ["MR", "Déclaration simplifiée", "Autorisation recherche", "Autre"]
       },
-      { "type_champ": "header_section", "libelle": "Calendrier previsionnel" },
-      { "type_champ": "date", "libelle": "Date souhaitee de debut", "mandatory": true },
-      { "type_champ": "text", "libelle": "Duree initiale prevue", "mandatory": true },
-      { "type_champ": "text", "libelle": "Duree de retention des donnees", "mandatory": true },
-      { "type_champ": "header_section", "libelle": "Pieces justificatives" },
+      { "type_champ": "header_section", "libelle": "Calendrier prévisionnel" },
+      { "type_champ": "date", "libelle": "Date souhaitée de début", "mandatory": true },
+      { "type_champ": "text", "libelle": "Durée initiale prévue", "mandatory": true },
+      { "type_champ": "text", "libelle": "Durée de rétention des données", "mandatory": true },
+      { "type_champ": "header_section", "libelle": "Pièces justificatives" },
       { "type_champ": "piece_justificative", "libelle": "Dossier de candidature (PDF)", "mandatory": true },
-      { "type_champ": "piece_justificative", "libelle": "Declaration CNIL" }
+      { "type_champ": "piece_justificative", "libelle": "Déclaration CNIL" }
     ]
   }
 ]
