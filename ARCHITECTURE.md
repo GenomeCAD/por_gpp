@@ -98,7 +98,7 @@ Les réponses au formulaire, les pièces jointes du porteur et la messagerie ave
 
 ### 6.1 Liaison d'une démarche (réalisée)
 
-Sur la page de gestion d'une démarche du GPP, bloc « Liaison avec la démarche publique », l'administrateur saisit le numéro de la démarche publique et clique « Lier ». L'URL de l'instance est lue dans `PUBLIC_DS_API_URL` à ce moment et conservée dans la liaison (à défaut, `https://www.demarches-simplifiees.fr`, ancienne adresse de la plateforme ; il faut donc renseigner la variable) : changer la variable ensuite ne déplace pas les liaisons existantes. « Délier » supprime la liaison.
+Sur la page de gestion d'une démarche du GPP, bloc « Liaison avec la démarche publique », l'administrateur saisit le numéro de la démarche publique et clique « Lier ». L'URL de l'instance est lue dans `PUBLIC_DS_API_URL` à ce moment et conservée dans la liaison (si la variable est absente, `https://www.demarches-simplifiees.fr`, ancienne adresse de la plateforme ; vide, elle fait échouer la liaison ; il faut donc la renseigner) : changer la variable ensuite ne déplace pas les liaisons existantes. « Délier » supprime la liaison.
 
 ### 6.2 Synchronisation descendante (réalisée)
 
@@ -158,6 +158,7 @@ Les cinq premiers points corrigent des anomalies du code actuel ; les deux derni
 - **Échanges avec la plateforme publique** : uniquement sortants, du GPP vers la plateforme, en HTTPS. La plateforme sait appeler une URL propre à chaque démarche quand un dossier change d'état (webhook), mais cela exigerait que le GPP soit joignable depuis Internet : le GPP interroge donc la plateforme.
 - **Jeton d'API** : un secret de l'environnement, jamais en base ni dans le dépôt. Il est créé sur le profil du titulaire du compte administrateur de la démarche publique (carte « Jetons d'identification de l'API (token) »), qui le renouvelle. Il doit être limité aux démarches liées, au réseau du GPP et dans le temps : le code de démarche numérique prévoit ces trois restrictions. La synchronisation n'a besoin que de la lecture (le README fait créer un jeton en lecture seule) ; le retour vers la plateforme (section 6.5) demandera l'écriture.
 - **Comptes** : administrateurs, instructeurs et experts ont des comptes du GPP, avec les rôles de démarche numérique. Le GPP n'a pas de pages usager ; le compte technique (section 4) est le seul propriétaire des dossiers synchronisés.
+- **API de préremplissage héritée** : la route publique de démarche numérique `POST /api/public/v1/demarches/<numéro>/dossiers` reste ouverte dans le GPP, sans authentification. Elle crée un dossier en brouillon, prérempli avec les valeurs envoyées, sur toute démarche du GPP publiée ou en brouillon. Le GPP n'en a pas l'usage ; la fermer est à décider (section 10).
 - **Données personnelles** : minimisation (section 5) ; jamais de dossier réel dans les jeux d'essai, les tests ou les journaux.
 
 ## 8. Exploitation
@@ -193,6 +194,7 @@ Le code propre au GPP n'a aujourd'hui aucun test automatisé : chaque évolution
 4. **Hébergement** du GPP.
 5. **Données personnelles** : inscrire au registre des traitements, s'il n'y figure pas, le traitement décrit en section 5, et fixer la durée de conservation des données copiées.
 6. **Lien avec le SIV** : la spécification du SIV (GIPCAD_sicad_service_ri_venues, §3.8) prévoit d'automatiser l'enrôlement des tenants, les acteurs pour lesquels le service de réception est activé, à partir d'un « module de gestion des projets » incluant les tenants et les projets CSE ; décider si le GPP est ce module.
+7. **API de préremplissage** (section 7) : la fermer dans le GPP, ou la garder et en définir l'usage.
 
 ## 11. Références
 
