@@ -125,12 +125,14 @@ module TagsSubstitutionConcern
     },
   ].push(DOSSIER_ID_TAG)
 
+  # The GPP has no usager pages: both links lead to the instructeur's dossier
+  # page, which also shows the attestation.
   DOSSIER_TAGS_FOR_MAIL = [
     {
       id: 'dossier_url',
       libelle: 'lien dossier',
       description: '',
-      lambda: -> (d) { external_link(dossier_url(d, host:)) },
+      lambda: -> (d) { external_link(instructeur_dossier_url(d.procedure, d, host:)) },
       available_for_states: Dossier::SOUMIS,
       escapable: false,
     },
@@ -138,7 +140,7 @@ module TagsSubstitutionConcern
       id: 'dossier_attestation_url',
       libelle: 'lien attestation',
       description: '',
-      lambda: -> (d) { external_link(attestation_dossier_url(d, host:)) },
+      lambda: -> (d) { external_link(instructeur_dossier_url(d.procedure, d, host:)) },
       available_for_states: [Dossier.states.fetch(:accepte), Dossier.states.fetch(:refuse)],
       escapable: false,
     },
